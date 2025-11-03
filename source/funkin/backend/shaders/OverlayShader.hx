@@ -1,5 +1,7 @@
 package funkin.backend.shaders;
 
+import mobile.flixel.system.FlxShader;
+
 @:dox(hide)
 class OverlayShader extends FlxShader
 {
