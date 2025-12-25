@@ -23,10 +23,9 @@ This mod is made on a extensible modding framework for fnf: Codename engine. Thi
 ![codename logo](cne.png)
 
 Download Codename:
-- Windows: [https://tinyurl.com/cne-download-windows](https://tinyurl.com/cne-download-windows)
-- Mac OS: [https://tinyurl.com/cne-download-macos](https://tinyurl.com/cne-download-macos)
-- Linux: [https://tinyurl.com/cne-download-linux](https://tinyurl.com/cne-download-linux)
+- Windows - MacOS - Linux: [https://codename-engine.com/]
+- Android - IOS: [https://github.com/HomuHomu833-haxe-stuff/CodenameEngine-Mobile/releases]
 
-Codename's Github: [https://github.com/FNF-CNE-Devs/CodenameEngine](https://github.com/FNF-CNE-Devs/CodenameEngine)
+Codename's Github: [https://github.com/FNF-CNE-Devs/CodenameEngine]
 
 Little note, gorefield builds on gamebanna/gamejolt come with a exe built in!!
