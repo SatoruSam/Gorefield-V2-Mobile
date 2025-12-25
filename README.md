@@ -1,11 +1,11 @@
-# Gorefield READ ME!!
+# Gorefield V2 Mobile Port!!
 
-This is a cool Friday Night Funkin' mod based on all things gorefield! Alot is heavly insipired of lumpy touch's animations!
+This is a port of the Friday Night Funkin' Gorefield V2 mod by SatoruSam. A lot is heavily inspired by LumpyTouch's animations!
 
 ![logo](logo.png)
 
 DOWNLOADS:
-- GAMEBANNA: [https://gamebanana.com/mods/501201](https://gamebanana.com/mods/501201)
+- GAMEBANANA: [https://gamebanana.com/mods/501201](https://gamebanana.com/mods/501201)
 - GAMEJOLT: [https://gamejolt.com/games/gorefieldv2/883364](https://gamejolt.com/games/gorefieldv2/883364)
 
 # STUFF IN MOD
