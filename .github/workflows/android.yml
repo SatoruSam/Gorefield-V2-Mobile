@@ -4,7 +4,6 @@ on:
   push:
     branches: ['main']
   workflow_dispatch:
-  workflow_call:
 
 jobs:
   build:
@@ -20,18 +19,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Pre-build: list repo and check icon
+      # Pre-build check: ensure icon exists and project.xml is updated
+      - name: Pre-build: verify icon and project.xml
         run: |
-          # Ensure icon exists in repo and show project.xml reference
-          echo "---- ls art ----"
+          echo "---- List art folder ----"
           ls -la art || true
-          echo "---- file info for icon ----"
+          echo "---- File info for icon.png ----"
           file art/icon.png || true
-          echo "---- git tracking ----"
+          echo "---- Git tracking for icon ----"
           git ls-files | grep -F "art/icon.png" || echo "art/icon.png NOT TRACKED"
-          echo "---- check project.xml icon entry ----"
-          grep -n 'icon path="art/icon' project.xml || true
-          echo "---- recent commits ----"
+          echo "---- Check project.xml icon reference ----"
+          grep -n 'icon path="art/icon' project.xml || echo "project.xml missing icon reference"
+          echo "---- Recent commits ----"
           git log -n 5 --pretty=oneline
 
       - name: Setup Haxe
@@ -42,7 +41,6 @@ jobs:
       - name: Restore build cache
         uses: actions/cache@v4
         with:
-          # do NOT cache generated export/release dirs to avoid stale exported resources
           key: cache-build-android-${{ runner.os }}-${{ hashFiles('**/haxelib.json') }}
           restore-keys: |
             cache-build-android-${{ runner.os }}-
@@ -63,34 +61,37 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
 
-      - name: Force clean generated export (avoid stale files)
+      # Force clean export to avoid stale resources
+      - name: Force clean export/release
         run: |
-          # force clean to avoid stale generated resources
           lime clean android || true
           rm -rf export/release/android || true
 
-      - name: Force copy icon into android res (workaround)
-        run: |
-          # Ensure drawable folder and copy icon so R.drawable.icon always exists
-          mkdir -p export/release/android/bin/app/src/main/res/drawable
-          cp art/icon.png export/release/android/bin/app/src/main/res/drawable/icon.png || true
-
+      # Build Android release
       - name: Build Android release
         run: haxelib run lime build android -final
 
-      - name: Debug - show generated android resources and StorageProvider
+      # Workaround: copy icon.png into res/drawable if missing
+      - name: Ensure icon in drawable folder
+        run: |
+          mkdir -p export/release/android/bin/app/src/main/res/drawable
+          cp art/icon.png export/release/android/bin/app/src/main/res/drawable/icon.png || true
+
+      # Debug step to show generated resources and Java references
+      - name: Debug: verify drawable and StorageProvider.java
         if: always()
         run: |
-          echo "---- list res drawable (if exists) ----"
+          echo "---- List drawable folder ----"
           ls -la export/release/android/bin/app/src/main/res/drawable || true
-          echo "---- list all drawables ----"
+          echo "---- Find all PNGs in res folder ----"
           find export/release/android/bin/app/src/main/res -maxdepth 2 -type f -name '*.png' -print || true
-          echo "---- grep for drawable.icon references in export ----"
+          echo "---- Check for drawable.icon references ----"
           grep -R "drawable.icon" export/release -n || true
-          echo "---- show StorageProvider around lines where error occurs ----"
+          echo "---- Show StorageProvider.java around problematic lines ----"
           sed -n '1,120p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
           sed -n '240,320p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
 
+      # Upload APK artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
