@@ -71,6 +71,7 @@ jobs:
 
       - name: Force copy icon into android res (workaround)
         run: |
+          # Ensure drawable folder and copy icon so R.drawable.icon always exists
           mkdir -p export/release/android/bin/app/src/main/res/drawable
           cp art/icon.png export/release/android/bin/app/src/main/res/drawable/icon.png || true
 
