@@ -188,6 +188,7 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	<assets path="art/icon.png" rename="icon.png" if="mobile" />
 	<icon path="art/icon.png" if="mobile" />
 
 	<!-- _________________________________ Additional stuff _______________________________ -->
