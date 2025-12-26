@@ -11,13 +11,28 @@ jobs:
     name: Android Build
     runs-on: ubuntu-latest
 
-    # Minimal permissions for checkout + artifacts
     permissions:
       contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pre-build: list repo and check icon
+        run: |
+          # Ensure icon exists in repo and show project.xml reference
+          echo "---- ls art ----"
+          ls -la art || true
+          echo "---- file info for icon ----"
+          file art/icon.png || true
+          echo "---- git tracking ----"
+          git ls-files | grep -F "art/icon.png" || echo "art/icon.png NOT TRACKED"
+          echo "---- check project.xml icon entry ----"
+          grep -n 'icon path="art/icon' project.xml || true
+          echo "---- recent commits ----"
+          git log -n 5 --pretty=oneline
 
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v2
@@ -27,14 +42,12 @@ jobs:
       - name: Restore build cache
         uses: actions/cache@v4
         with:
-          # Cache key changes when dependencies change
+          # do NOT cache generated export/release dirs to avoid stale exported resources
           key: cache-build-android-${{ runner.os }}-${{ hashFiles('**/haxelib.json') }}
           restore-keys: |
             cache-build-android-${{ runner.os }}-
           path: |
             .haxelib/
-            export/release/android/haxe/
-            export/release/android/obj/
             ~/.hxcpp/
 
       - name: Setup HXCPP compile cache
@@ -50,8 +63,32 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
 
+      - name: Force clean generated export (avoid stale files)
+        run: |
+          # force clean to avoid stale generated resources
+          lime clean android || true
+          rm -rf export/release/android || true
+
+      - name: Force copy icon into android res (workaround)
+        run: |
+          mkdir -p export/release/android/bin/app/src/main/res/drawable
+          cp art/icon.png export/release/android/bin/app/src/main/res/drawable/icon.png || true
+
       - name: Build Android release
         run: haxelib run lime build android -final
+
+      - name: Debug - show generated android resources and StorageProvider
+        if: always()
+        run: |
+          echo "---- list res drawable (if exists) ----"
+          ls -la export/release/android/bin/app/src/main/res/drawable || true
+          echo "---- list all drawables ----"
+          find export/release/android/bin/app/src/main/res -maxdepth 2 -type f -name '*.png' -print || true
+          echo "---- grep for drawable.icon references in export ----"
+          grep -R "drawable.icon" export/release -n || true
+          echo "---- show StorageProvider around lines where error occurs ----"
+          sed -n '1,120p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
+          sed -n '240,320p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
