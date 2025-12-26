@@ -4,96 +4,57 @@ on:
   push:
     branches: ['main']
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
     name: Android Build
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      # Pre-build check: ensure icon exists and project.xml is updated
-      - name: Pre-build: verify icon and project.xml
-        run: |
-          echo "---- List art folder ----"
-          ls -la art || true
-          echo "---- File info for icon.png ----"
-          file art/icon.png || true
-          echo "---- Git tracking for icon ----"
-          git ls-files | grep -F "art/icon.png" || echo "art/icon.png NOT TRACKED"
-          echo "---- Check project.xml icon reference ----"
-          grep -n 'icon path="art/icon' project.xml || echo "project.xml missing icon reference"
-          echo "---- Recent commits ----"
-          git log -n 5 --pretty=oneline
-
-      - name: Setup Haxe
-        uses: krdlab/setup-haxe@v2
-        with:
-          haxe-version: 4.3.7
-
-      - name: Restore build cache
-        uses: actions/cache@v4
-        with:
-          key: cache-build-android-${{ runner.os }}-${{ hashFiles('**/haxelib.json') }}
-          restore-keys: |
-            cache-build-android-${{ runner.os }}-
-          path: |
-            .haxelib/
-            ~/.hxcpp/
-
-      - name: Setup HXCPP compile cache
-        run: echo "HXCPP_COMPILE_CACHE=$HOME/.hxcpp" >> $GITHUB_ENV
-
-      - name: Install and update libraries
-        run: haxe -cp commandline -D analyzer-optimize --run Main setup -s
-
-      - name: Configure Android environment
-        run: |
-          haxelib run lime config ANDROID_SDK $ANDROID_HOME
-          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME
-          haxelib run lime config JAVA_HOME $JAVA_HOME
-          haxelib run lime config ANDROID_SETUP true
-
-      # Force clean export to avoid stale resources
-      - name: Force clean export/release
-        run: |
-          lime clean android || true
-          rm -rf export/release/android || true
-
-      # Build Android release
-      - name: Build Android release
-        run: haxelib run lime build android -final
-
-      # Workaround: copy icon.png into res/drawable if missing
-      - name: Ensure icon in drawable folder
-        run: |
-          mkdir -p export/release/android/bin/app/src/main/res/drawable
-          cp art/icon.png export/release/android/bin/app/src/main/res/drawable/icon.png || true
-
-      # Debug step to show generated resources and Java references
-      - name: Debug: verify drawable and StorageProvider.java
-        if: always()
-        run: |
-          echo "---- List drawable folder ----"
-          ls -la export/release/android/bin/app/src/main/res/drawable || true
-          echo "---- Find all PNGs in res folder ----"
-          find export/release/android/bin/app/src/main/res -maxdepth 2 -type f -name '*.png' -print || true
-          echo "---- Check for drawable.icon references ----"
-          grep -R "drawable.icon" export/release -n || true
-          echo "---- Show StorageProvider.java around problematic lines ----"
-          sed -n '1,120p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
-          sed -n '240,320p' export/release/android/bin/app/src/main/java/org/haxe/lime/StorageProvider.java || true
-
-      # Upload APK artifact
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Codename-Engine-Android
+    # Minimal permissions for checkout + artifacts      
+    permissions:      
+      contents: read      
+      
+    steps:      
+      - name: Checkout repository      
+        uses: actions/checkout@v4      
+      
+      - name: Setup Haxe      
+        uses: krdlab/setup-haxe@v2      
+        with:      
+          haxe-version: 4.3.7      
+      
+      - name: Restore build cache      
+        uses: actions/cache@v4      
+        with:      
+          # Cache key changes when dependencies change      
+          key: cache-build-android-${{ runner.os }}-${{ hashFiles('**/haxelib.json') }}      
+          restore-keys: |      
+            cache-build-android-${{ runner.os }}-      
+          path: |      
+            .haxelib/      
+            export/release/android/haxe/      
+            export/release/android/obj/      
+            ~/.hxcpp/      
+      
+      - name: Setup HXCPP compile cache      
+        run: echo "HXCPP_COMPILE_CACHE=$HOME/.hxcpp" >> $GITHUB_ENV      
+      
+      - name: Install and update libraries      
+        run: haxe -cp commandline -D analyzer-optimize --run Main setup -s      
+      
+      - name: Configure Android environment      
+        run: |      
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME      
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME      
+          haxelib run lime config JAVA_HOME $JAVA_HOME      
+          haxelib run lime config ANDROID_SETUP true      
+      
+      - name: Build Android release      
+        run: haxelib run lime build android -final      
+      
+      - name: Upload APK artifact      
+        uses: actions/upload-artifact@v4      
+        with:      
+          name: Codename-Engine-Android      
           path: export/release/android/bin/app/build/outputs/apk/release/*.apk
