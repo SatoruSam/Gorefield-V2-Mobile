@@ -16,3 +16,4 @@ pages/** linguist-vendored
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 mods/gorefield/** filter=lfs diff=lfs merge=lfs -text
 icons/* filter=lfs diff=lfs merge=lfs -text
+mods/Gorefield/** filter=lfs diff=lfs merge=lfs -text
