@@ -188,13 +188,11 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
-<<<<<<< HEAD
-	<assets path="art/icon.png" rename="icon.png" if="mobile" />
-=======
-	<assets path='art/icons/icon.png' if="mobile" />
-
->>>>>>> 4620c2f4 (Update project files)
-	<icon path="art/icon.png" if="mobile" />
+	<assets path="icons/iconOG.png" rename="icon.png" if="linux || mac" />
+	    <icon path="icons/icon16.png" size="16" />
+	    <icon path="icons/icon32.png" size="32" />
+	    <icon path="icons/icon64.png" size="64" />
+	    <icon path="icons/iconOG.png" />
 
 	<!-- _________________________________ Additional stuff _______________________________ -->
 
