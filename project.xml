@@ -3,17 +3,17 @@
 	<!-- _________________________ Application Settings _________________________ -->
 	<app
 		title="Friday Night Funkin': Gorefield V2" main="funkin.backend.system.Main"
-		file="gorefield" packageName="com.yoshman29.gorefield"
-		package="com.yoshman29.gorefield"
-		version="2.1.0" company="Yoshman29" />
+		file="gorefield" packageName="com.lasagna.gorefield"
+		package="com.lasagna.gorefield"
+		version="2.1.0" company="LASAGNA" />
 
 	<!--
 		CHANGE THE SAVE PATH & NAME FOR YOUR MOD HERE!
 	-->
-	<haxedef name="SAVE_PATH" value="Gorefield"/>
+	<haxedef name="SAVE_PATH" value="gorefield"/>
 	<haxedef name="SAVE_NAME" value="save-default"/>
 
-	<haxedef name="SAVE_OPTIONS_PATH" value="Gorefield"/>
+	<haxedef name="SAVE_OPTIONS_PATH" value="gorefield"/>
 	<haxedef name="SAVE_OPTIONS_NAME" value="options"/>
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
@@ -188,7 +188,12 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+<<<<<<< HEAD
 	<assets path="art/icon.png" rename="icon.png" if="mobile" />
+=======
+	<assets path='art/icons/icon.png' if="mobile" />
+
+>>>>>>> 4620c2f4 (Update project files)
 	<icon path="art/icon.png" if="mobile" />
 
 	<!-- _________________________________ Additional stuff _______________________________ -->
